@@ -10,18 +10,18 @@ const {
 const isLoggedIn = require("../middleware/isLoggedIn");
 const { pool } = require("../db/index");
 
-// ✅ Fetch ALL community posts
+// ✅ Fixing Endpoint: Fetch ALL Community Posts
 router.get("/api/posts", async (req, res) => {
   try {
     const posts = await fetchAllPosts();
-    res.json(posts);
+    res.status(200).json(posts);
   } catch (err) {
     console.error("❌ Error fetching community posts:", err.message);
     res.status(500).json({ error: "Failed to fetch community posts" });
   }
 });
 
-// ✅ Fetch posts for a specific community
+// ✅ Fetch Posts for a Specific Community
 router.get("/api/communities/:communityId/posts", async (req, res) => {
   try {
     const { communityId } = req.params;
@@ -33,11 +33,11 @@ router.get("/api/communities/:communityId/posts", async (req, res) => {
   }
 });
 
-// ✅ Create a new community post
+// ✅ Create a New Community Post
 router.post("/api/communities/:communityId/posts", isLoggedIn, async (req, res) => {
   try {
     const { communityId } = req.params;
-    const userId = req.user.id; // Extract user ID from token
+    const userId = req.user.id;
     const { title, content, imgId } = req.body;
 
     if (!title || !content) {
@@ -59,7 +59,7 @@ router.post("/api/communities/:communityId/posts", isLoggedIn, async (req, res) 
   }
 });
 
-// ✅ Update a community post
+// ✅ Update a Community Post
 router.put("/api/communities/:communityId/posts/:postId", isLoggedIn, async (req, res) => {
   try {
     const { postId } = req.params;
@@ -78,7 +78,7 @@ router.put("/api/communities/:communityId/posts/:postId", isLoggedIn, async (req
   }
 });
 
-// ✅ Delete a community post
+// ✅ Delete a Community Post
 router.delete("/api/communities/:communityId/posts/:postId", isLoggedIn, async (req, res) => {
   try {
     const { postId } = req.params;
