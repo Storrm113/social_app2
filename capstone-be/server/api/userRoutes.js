@@ -32,6 +32,7 @@ router.post("/register", async (req, res) => {
     router.post("/register", async (req, res) => {
       try {
         const { username, password, email, dob } = req.body;
+    
         if (!username || !password || !email || !dob) {
           return res.status(400).json({ error: "Missing required fields" });
         }
@@ -46,6 +47,7 @@ router.post("/register", async (req, res) => {
         res.status(500).json({ error: "Failed to register user" });
       }
     });
+    
     
 
     if (!newUser) {
