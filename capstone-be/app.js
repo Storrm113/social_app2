@@ -5,30 +5,33 @@ const cors = require("cors");
 const pool = require("./server/db");
 const { sendDirectMessage, fetchDirectMessages } = require("./server/db/message");
 const communityRoutes = require("./server/api/communityRoutes");
-const userRoutes = require("./server/api/userRoutes"); // ✅ Ensure user routes are included
+const userRoutes = require("./server/api/userRoutes");
 
 const app = express();
 const server = http.createServer(app);
 
-const io = new Server(server, {
-  cors: { origin: "*" },
-});
-
 // ✅ CORS Configuration
 const corsOptions = {
-  origin: "https://tigers-social-app.netlify.app",
+  origin: "https://tigers-social-app.netlify.app", // Allow frontend
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
 };
 
-app.use(cors(corsOptions));
-app.use(express.json());
+app.use(cors(corsOptions)); // ✅ Apply CORS middleware
+app.use(express.json()); // ✅ Ensure JSON body parsing
 
 // ✅ Register Routes
 app.use("/api/community", communityRoutes);
-app.use("/api/users", userRoutes); // ✅ Register user routes properly
+app.use("/api/users", userRoutes); 
 
 // ✅ Socket.io Real-Time Connection
+const io = new Server(server, {
+  cors: {
+    origin: "https://tigers-social-app.netlify.app", // Ensure Socket.io allows frontend requests
+    methods: ["GET", "POST"],
+  },
+});
+
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
 
@@ -58,8 +61,13 @@ app.get("/messages/direct/:senderId/:receiverId", async (req, res) => {
   }
 });
 
-// Start the server
+// ✅ Catch-all Route to Handle Undefined API Calls
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found" });
+});
+
+// ✅ Start the server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
