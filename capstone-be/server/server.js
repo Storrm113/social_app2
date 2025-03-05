@@ -1,43 +1,21 @@
-const express = require("express");
+// server.js
 const http = require("http");
 const { Server } = require("socket.io");
-const cors = require("cors");
-const pool = require("./db");
-const { sendDirectMessage, fetchDirectMessages } = require("./message");
-const communityRoutes = require("./api/communityRoutes");
+const app = require("./app"); // Import Express app
 
-const app = express();
 const server = http.createServer(app);
 
+// ✅ Socket.io Setup
 const io = new Server(server, {
-  cors: { origin: "*" }, // Allow all origins (update for security)
+  cors: { origin: "*" },
 });
 
-// ✅ **Step 2: Fix CORS Configuration**
-const corsOptions = {
-  origin: "https://tigers-social-app.netlify.app", // Allow only frontend
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true, // Allow cookies/auth headers
-};
-
-app.use(cors(corsOptions));
-app.use(express.json());
-
-// **Register Routes**
-app.use("/api/community", communityRoutes);
-
-// **Socket.io Real-Time Connection**
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
 
   socket.on("sendMessage", async ({ senderId, receiverId, content }) => {
     try {
-      const message = await sendDirectMessage({
-        senderId,
-        receiverId,
-        content,
-      });
-
+      const message = await sendDirectMessage({ senderId, receiverId, content });
       io.to(receiverId).emit("receiveMessage", message);
       io.to(senderId).emit("receiveMessage", message);
     } catch (error) {
@@ -50,19 +28,8 @@ io.on("connection", (socket) => {
   });
 });
 
-// **API Route to Fetch Direct Messages**
-app.get("/messages/direct/:senderId/:receiverId", async (req, res) => {
-  const { senderId, receiverId } = req.params;
-  try {
-    const messages = await fetchDirectMessages(senderId, receiverId);
-    res.json(messages);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch messages" });
-  }
-});
-
-// Start the server
+// ✅ Start the Server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

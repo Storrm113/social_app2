@@ -1,51 +1,63 @@
 const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
 const cors = require("cors");
-const path = require("path");
-const apiRoutes = require("./server/api");
-const { pool } = require("./server/db");
+const pool = require("./db");
+const { sendDirectMessage, fetchDirectMessages } = require("./message");
+const communityRoutes = require("./api/communityRoutes");
 
 const app = express();
-const PORT = process.env.PORT || 5000; // ✅ Changed from 3000 to 5000
+const server = http.createServer(app);
 
-// Serve static files from "uploads"
-app.use("/uploads", express.static(path.join(__dirname, "../", "uploads"))); // ✅ Fix the path
-
-// Middleware
-app.use(cors());
-app.use(express.json());
-
-// Logging middleware
-app.use("/api", (req, res, next) => {
-  console.log("Request URL:", req.originalUrl);
-  next();
+const io = new Server(server, {
+  cors: { origin: "*" },
 });
 
-// Use API Routes
-app.use("/api", apiRoutes);
+// ✅ CORS Configuration
+const corsOptions = {
+  origin: "https://tigers-social-app.netlify.app",
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+};
 
-// Global error handler
-app.use((err, req, res, next) => {
-  console.error("Global Error Handler:", err);
-  res.status(err.status || 500).json({
-    error: err.message || "Internal Server Error",
+app.use(cors(corsOptions));
+app.use(express.json());
+
+// ✅ Register Routes
+app.use("/api/community", communityRoutes);
+
+// ✅ Socket.io Real-Time Connection
+io.on("connection", (socket) => {
+  console.log("A user connected:", socket.id);
+
+  socket.on("sendMessage", async ({ senderId, receiverId, content }) => {
+    try {
+      const message = await sendDirectMessage({ senderId, receiverId, content });
+      io.to(receiverId).emit("receiveMessage", message);
+      io.to(senderId).emit("receiveMessage", message);
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
   });
 });
 
-// Initialize the app with database connection check
-const init = async () => {
+// ✅ API Route to Fetch Direct Messages
+app.get("/messages/direct/:senderId/:receiverId", async (req, res) => {
+  const { senderId, receiverId } = req.params;
   try {
-    console.log("Connecting to database...");
-    await pool.query("SELECT NOW()");
-    console.log("✅ Database connected!");
-
-    // Start the server on port 5000
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on http://localhost:${PORT}`);
-    });
+    const messages = await fetchDirectMessages(senderId, receiverId);
+    res.json(messages);
   } catch (err) {
-    console.error("❌ Database connection error:", err);
+    res.status(500).json({ error: "Failed to fetch messages" });
   }
-};
+});
 
-// Start the server
-init();
+// ✅ Start the Server
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
