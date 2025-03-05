@@ -4,6 +4,15 @@ const { createUser, fetchUsers, updateUser, deleteUser, findUserByUsername, fetc
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
+// ✅ Check if user already exists before registration
+const checkUserExists = async (username, email) => {
+  const result = await pool.query(
+    `SELECT * FROM users WHERE username = $1 OR email = $2`,
+    [username, email]
+  );
+  return result.rows.length > 0;
+};
+
 // ✅ Register New User
 router.post("/register", async (req, res) => {
   try {
@@ -11,6 +20,12 @@ router.post("/register", async (req, res) => {
 
     if (!username || !password || !email || !dob) {
       return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    // Check if user already exists
+    const userExists = await checkUserExists(username, email);
+    if (userExists) {
+      return res.status(409).json({ error: "User with this username or email already exists." });
     }
 
     const newUser = await createUser({

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://your-backend-service.onrender.com"; // Make sure this is correct
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://social-app-wauj.onrender.com"; // Make sure this is correct
 
 export const registerUser = async (userData) => {
   try {
