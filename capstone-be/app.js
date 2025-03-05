@@ -4,7 +4,10 @@ const http = require("http");
 const { Server } = require("socket.io");
 const communityRoutes = require("./server/api/communityRoutes"); // Ensure correct import
 const userRoutes = require("./server/api/userRoutes");
-const { sendDirectMessage, fetchDirectMessages } = require("./server/db/message");
+const messageRoutes = require("./server/api/messageRoutes");
+const axios = require("axios");
+
+const API_BASE_URL = process.env.VITE_API_BASE_URL || "https://social-app-wauj.onrender.com";
 
 const app = express();
 const server = http.createServer(app);
@@ -22,6 +25,18 @@ app.use(express.json()); // ✅ Ensure JSON body parsing
 // ✅ Register Routes Correctly
 app.use("/api/communities", communityRoutes); // Ensure this matches the frontend call
 app.use("/api/users", userRoutes);
+app.use("/api/messages", messageRoutes);
+
+// ✅ Fetch Community Posts
+app.get("/api/communities/communitiespost/all", async (req, res) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/api/communities/communitiespost/all`);
+    res.json(response.data);
+  } catch (error) {
+    console.error("❌ Error fetching community posts:", error.response?.data || error.message);
+    res.status(500).json({ error: "Failed to fetch community posts" });
+  }
+});
 
 // ✅ Socket.io Real-Time Connection
 const io = new Server(server, {
@@ -50,7 +65,7 @@ io.on("connection", (socket) => {
 });
 
 // ✅ API Route to Fetch Direct Messages
-app.get("/messages/direct/:senderId/:receiverId", async (req, res) => {
+app.get("/api/messages/direct/:senderId/:receiverId", async (req, res) => {
   const { senderId, receiverId } = req.params;
   try {
     const messages = await fetchDirectMessages(senderId, receiverId);
