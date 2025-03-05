@@ -15,17 +15,17 @@ const {
   deleteCommunity,
 } = require("../db/community");
 
-// **Get all communities**
+// ✅ Fetch all communities
 router.get("/", async (req, res) => {
   try {
-    console.log("Fetching communities...");
     const communities = await fetchCommunities();
-    res.status(200).json(communities);
+    res.json(communities);
   } catch (err) {
-    console.error("Error fetching communities:", err.message);
+    console.error("❌ Error fetching communities:", err.message);
     res.status(500).json({ error: "Failed to fetch communities" });
   }
 });
+
 
 // Get community details by communityId
 router.get("/:communityId", async (req, res) => {

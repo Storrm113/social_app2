@@ -4,16 +4,17 @@ const { fetchPostsByCommunity, createCommunityPost, updateCommunityPost, deleteC
 const isLoggedIn = require("../middleware/isLoggedIn");
 const { pool } = require("../db/index");
 
-// ✅ Fetch ALL community posts (for all communities)
-router.get("/communitiespost/all", async (req, res, next) => {
+// ✅ Fetch ALL community posts
+router.get("/posts/all", async (req, res) => {
   try {
     const posts = await fetchAllPosts();
-    res.status(200).json(posts);
+    res.json(posts);
   } catch (err) {
-    console.error("❌ Error fetching all community posts:", err.message);
+    console.error("❌ Error fetching community posts:", err.message);
     res.status(500).json({ error: "Failed to fetch community posts" });
   }
 });
+
 
 // ✅ Fetch posts for a specific community
 router.get("/:communityId/posts", async (req, res, next) => {
