@@ -29,23 +29,24 @@ router.post("/register", async (req, res) => {
     }
 
     // Check if user already exists
-    const userExists = await checkUserExists(username, email);
-    if (userExists) {
-      return res.status(409).json({ error: "User with this username or email already exists." });
-    }
-
-    const newUser = await createUser({
-      username,
-      password,
-      email,
-      dob,
-      bio,
-      location,
-      is_admin: is_admin || false,
-      visibility: visibility || "public",
-      profile_picture: profile_picture || "",
-      status: status || "active",
+    router.post("/register", async (req, res) => {
+      try {
+        const { username, password, email, dob } = req.body;
+        if (!username || !password || !email || !dob) {
+          return res.status(400).json({ error: "Missing required fields" });
+        }
+    
+        const newUser = await createUser({
+          username, password, email, dob
+        });
+    
+        return res.status(201).json({ message: "User registered successfully", newUser });
+      } catch (error) {
+        console.error("Error registering user:", error);
+        res.status(500).json({ error: "Failed to register user" });
+      }
     });
+    
 
     if (!newUser) {
       return res.status(500).json({ error: "User could not be created" });
