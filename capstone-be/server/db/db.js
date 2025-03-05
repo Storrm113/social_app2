@@ -24,6 +24,10 @@ const createTables = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
+      -- Ensure UNIQUE constraints on username and email
+      ALTER TABLE users ADD CONSTRAINT unique_username UNIQUE (username);
+      ALTER TABLE users ADD CONSTRAINT unique_email UNIQUE (email);
+
       -- Now create images table which references users
       CREATE TABLE IF NOT EXISTS images (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -115,4 +119,21 @@ const createTables = async () => {
   }
 };
 
-module.exports = { createTables };
+const createUser = async ({ username, email, password, dob }) => {
+  try {
+    const { rows } = await pool.query(
+      `INSERT INTO users (username, email, password, dob)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (email) DO UPDATE 
+       SET username = EXCLUDED.username 
+       RETURNING *;`,
+      [username, email, password, dob]
+    );
+    return rows[0];
+  } catch (err) {
+    console.error("❌ Error creating user:", err);
+    throw err;
+  }
+};
+
+module.exports = { createTables, createUser };
