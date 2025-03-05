@@ -31,7 +31,7 @@ const seedDb = async () => {
         email: "john@example.com",
         name: "John Doe",
         dob: "1990-05-15",
-        is_admin: false,
+        is_admin: true,
       });
       console.log("✅ User 'john_doe' created.");
     } else {

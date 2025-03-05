@@ -5,7 +5,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://social-app-wa
 // ✅ REST API: Register New User
 export const registerUser = async (userData) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/api/users/register`, userData);
+    const response = await axios.post(`${API_BASE_URL}/api/users`, userData);
     return response.data;
   } catch (error) {
     console.error("Error registering user:", error.response?.data || error.message);
@@ -13,7 +13,16 @@ export const registerUser = async (userData) => {
   }
 };
 
-
+// ✅ REST API: Login User
+export const loginUser = async (credentials) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/api/users/login`, credentials);
+    return response.data;
+  } catch (error) {
+    console.error("Error logging in:", error.response?.data || error.message);
+    throw error;
+  }
+};
 
 // ✅ REST API: Fetch All Users
 export const fetchUsers = async () => {
