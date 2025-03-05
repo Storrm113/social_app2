@@ -3,8 +3,8 @@ const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const pool = require("./server/db");
-const { sendDirectMessage, fetchDirectMessages } = require("./message");
-const communityRoutes = require("./api/communityRoutes");
+const { sendDirectMessage, fetchDirectMessages } = require("./server/db/message");
+const communityRoutes = require("./server/api/communityRoutes");
 
 const app = express();
 const server = http.createServer(app);
