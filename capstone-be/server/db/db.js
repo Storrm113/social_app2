@@ -1,4 +1,5 @@
 const { pool } = require("./index"); // Use pool instead of client
+const bcrypt = require("bcrypt");
 
 const createTables = async () => {
   try {
@@ -24,9 +25,16 @@ const createTables = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
-      -- Ensure UNIQUE constraints on username and email
-      ALTER TABLE users ADD CONSTRAINT unique_username UNIQUE (username);
-      ALTER TABLE users ADD CONSTRAINT unique_email UNIQUE (email);
+      -- Ensure UNIQUE constraints exist on username and email
+      DO $$ 
+      BEGIN 
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'unique_username') THEN 
+          ALTER TABLE users ADD CONSTRAINT unique_username UNIQUE (username);
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'unique_email') THEN 
+          ALTER TABLE users ADD CONSTRAINT unique_email UNIQUE (email);
+        END IF;
+      END $$;
 
       -- Now create images table which references users
       CREATE TABLE IF NOT EXISTS images (
@@ -119,17 +127,35 @@ const createTables = async () => {
   }
 };
 
+// **Create User with Unique Check**
 const createUser = async ({ username, email, password, dob }) => {
+  console.log("🔍 Debug - Creating user with values:", { username, email, dob });
+
   try {
-    const { rows } = await pool.query(
-      `INSERT INTO users (username, email, password, dob)
-       VALUES ($1, $2, $3, $4)
-       ON CONFLICT (email) DO UPDATE 
-       SET username = EXCLUDED.username 
-       RETURNING *;`,
-      [username, email, password, dob]
-    );
-    return rows[0];
+    // Check if user already exists
+    const checkSQL = `SELECT id FROM users WHERE username = $1 OR email = $2;`;
+    const { rows } = await pool.query(checkSQL, [username, email]);
+
+    if (rows.length > 0) {
+      console.log(`⚠️ User with username '${username}' or email '${email}' already exists.`);
+      throw new Error("User already exists");
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const insertSQL = `
+      INSERT INTO users (username, email, password, dob)
+      VALUES ($1, $2, $3, $4)
+      RETURNING *;
+    `;
+
+    const result = await pool.query(insertSQL, [username, email, hashedPassword, dob]);
+
+    if (!result.rows.length) {
+      throw new Error("User creation failed");
+    }
+
+    return result.rows[0];
   } catch (err) {
     console.error("❌ Error creating user:", err);
     throw err;
