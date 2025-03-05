@@ -37,7 +37,7 @@ export const loginUser = async (credentials) => {
 
 export const registerUser = async (userData) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/users/register`, userData);
+    const response = await axios.post(`${API_BASE_URL}/users/register`, userData, { timeout: 10000 }); // 10s timeout
     return response.data;
   } catch (error) {
     console.error('Error registering user:', error.response?.data || error.message);
