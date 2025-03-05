@@ -1,11 +1,10 @@
 const express = require("express");
+const cors = require("cors");
 const http = require("http");
 const { Server } = require("socket.io");
-const cors = require("cors");
-const pool = require("./server/db");
-const { sendDirectMessage, fetchDirectMessages } = require("./server/db/message");
-const communityRoutes = require("./server/api/communityRoutes");
+const communityRoutes = require("./server/api/communityRoutes"); // Ensure correct import
 const userRoutes = require("./server/api/userRoutes");
+const { sendDirectMessage, fetchDirectMessages } = require("./server/db/message");
 
 const app = express();
 const server = http.createServer(app);
@@ -20,9 +19,9 @@ const corsOptions = {
 app.use(cors(corsOptions)); // ✅ Apply CORS middleware
 app.use(express.json()); // ✅ Ensure JSON body parsing
 
-// ✅ Register Routes
-app.use("/api/community", communityRoutes);
-app.use("/api/users", userRoutes); 
+// ✅ Register Routes Correctly
+app.use("/api/communities", communityRoutes); // Ensure this matches the frontend call
+app.use("/api/users", userRoutes);
 
 // ✅ Socket.io Real-Time Connection
 const io = new Server(server, {
@@ -66,8 +65,7 @@ app.use((req, res) => {
   res.status(404).json({ error: "Route not found" });
 });
 
-// ✅ Start the server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
