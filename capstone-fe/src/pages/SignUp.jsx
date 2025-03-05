@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { registerUser } from "../api/index"; // Import registerUser function
 
 function SignUp() {
   const navigate = useNavigate();
@@ -39,7 +39,8 @@ function SignUp() {
     try {
       console.log("API URL:", import.meta.env.VITE_API_BASE_URL); // Debugging the API URL
 
-      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/users/register`, {
+      // ✅ Use registerUser function from api/index.js
+      const response = await registerUser({
         username: formData.username,
         password: formData.password,
         email: formData.email,
@@ -52,10 +53,10 @@ function SignUp() {
         status: "active",
       });
 
-      console.log("API Response:", response.data);
+      console.log("API Response:", response);
 
-      if (response.data.token) {
-        localStorage.setItem("token", response.data.token); // Store token
+      if (response.token) {
+        localStorage.setItem("token", response.token); // Store token
         setSuccess(true);
         alert("Registration Successful");
         navigate("/login");

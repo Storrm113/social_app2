@@ -58,8 +58,8 @@ app.get("/messages/direct/:senderId/:receiverId", async (req, res) => {
   }
 });
 
-// ✅ Start the Server
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
