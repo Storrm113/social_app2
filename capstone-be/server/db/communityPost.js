@@ -27,7 +27,7 @@ const createCommunityPost = async ({ user_id, community_id, title, content }) =>
   }
 };
 
-const fetchCommunityPosts = async (community_id) => {
+const fetchPostsByCommunity = async (community_id) => {
   console.log("🔍 Debug - Fetching posts for community:", community_id);
 
   try {
@@ -43,5 +43,5 @@ const fetchCommunityPosts = async (community_id) => {
 // ✅ Fix: Ensure this function is exported correctly
 module.exports = {
   createCommunityPost,
-  fetchCommunityPosts, // ✅ Ensure correct export
+  fetchPostsByCommunity, // ✅ Ensure correct export
 };
