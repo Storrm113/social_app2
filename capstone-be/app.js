@@ -2,7 +2,7 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
-const pool = require("./db");
+const pool = require("./server/db");
 const { sendDirectMessage, fetchDirectMessages } = require("./message");
 const communityRoutes = require("./api/communityRoutes");
 
