@@ -37,35 +37,33 @@ const createUser = async ({
   username,
   password,
   email,
-  name,
   dob,
-  visibility,
-  profile_picture,
-  bio,
-  location,
-  status
+  visibility = "public",
+  profile_picture = "",
+  bio = "",
+  location = "",
+  status = "active"
 }) => {
   console.log("🔍 Debug - Creating user with values:", {
-    username, password, email, name, dob, is_admin
+    username, email, dob, is_admin
   });
 
   try {
-    // ✅ Check if user already exists before inserting
-    const checkSQL = `SELECT * FROM users WHERE username = $1 OR email = $2;`;
+    // ✅ Ensure unique constraint on username and email
+    const checkSQL = `SELECT id FROM users WHERE username = $1 OR email = $2;`;
     const { rows } = await pool.query(checkSQL, [username, email]);
 
     if (rows.length > 0) {
-      console.log(`⚠️ User with username '${username}' or email '${email}' already exists. Skipping.`);
-      return null; // Skip inserting user
+      console.log(`⚠️ User with username '${username}' or email '${email}' already exists.`);
+      throw new Error("User already exists");
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const SQL = `
-      INSERT INTO users(id, is_admin, username, password, name, email, dob, visibility, profile_picture, 
+      INSERT INTO users(id, is_admin, username, password, email, dob, visibility, profile_picture, 
       bio, location, status, created_at)
-      VALUES(uuid_generate_v4(), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW()) 
-      ON CONFLICT (username, email) DO NOTHING 
+      VALUES(uuid_generate_v4(), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW()) 
       RETURNING *;
     `;
 
@@ -73,7 +71,6 @@ const createUser = async ({
       is_admin,
       username,
       hashedPassword,
-      name,
       email,
       dob,
       visibility,
@@ -84,8 +81,7 @@ const createUser = async ({
     ]);
 
     if (!result.rows.length) {
-      console.log(`⚠️ User insertion skipped due to conflict.`);
-      return null;
+      throw new Error("User creation failed");
     }
 
     return result.rows[0];
@@ -164,7 +160,7 @@ const findUserByUsername = async (username) => {
     console.log("🔍 Debug - Finding user by username:", username);
 
     const SQL = `
-      SELECT id, username, email, profile_picture, bio, name 
+      SELECT id, username, email, profile_picture, bio 
       FROM users
       WHERE username = $1;
     `;
