@@ -1,5 +1,11 @@
-const { pool } = require("./index"); // Use pool instead of client
+require('dotenv').config();
+const { Pool } = require('pg');
 const bcrypt = require("bcrypt");
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
 
 const createTables = async () => {
   try {
@@ -162,4 +168,4 @@ const createUser = async ({ username, email, password, dob }) => {
   }
 };
 
-module.exports = { createTables, createUser };
+module.exports = { createTables, createUser, pool };
