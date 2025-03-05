@@ -24,10 +24,10 @@ export const fetchUsers = async () => {
   }
 };
 
-// ✅ Fetch Community Posts
+// ✅ Fetch All Community Posts
 export const fetchCommunityPosts = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/api/communities/communitiespost/all`);
+    const response = await axios.get(`${API_BASE_URL}/api/communitiespost/all`);
     return response.data;
   } catch (error) {
     console.error("❌ Error fetching community posts:", error.response?.data || error.message);
