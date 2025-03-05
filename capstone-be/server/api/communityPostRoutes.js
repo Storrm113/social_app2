@@ -1,11 +1,17 @@
 const express = require("express");
 const router = express.Router();
-const { fetchPostsByCommunity, createCommunityPost, updateCommunityPost, deleteCommunityPost, fetchAllPosts } = require("../db/communityPost");
+const { 
+  fetchPostsByCommunity, 
+  createCommunityPost, 
+  updateCommunityPost, 
+  deleteCommunityPost, 
+  fetchAllPosts 
+} = require("../db/communityPost");
 const isLoggedIn = require("../middleware/isLoggedIn");
 const { pool } = require("../db/index");
 
 // ✅ Fetch ALL community posts
-router.get("/posts/all", async (req, res) => {
+router.get("/api/posts", async (req, res) => {
   try {
     const posts = await fetchAllPosts();
     res.json(posts);
@@ -15,9 +21,8 @@ router.get("/posts/all", async (req, res) => {
   }
 });
 
-
 // ✅ Fetch posts for a specific community
-router.get("/:communityId/posts", async (req, res, next) => {
+router.get("/api/communities/:communityId/posts", async (req, res) => {
   try {
     const { communityId } = req.params;
     const posts = await fetchPostsByCommunity(communityId);
@@ -29,11 +34,11 @@ router.get("/:communityId/posts", async (req, res, next) => {
 });
 
 // ✅ Create a new community post
-router.post("/:communityId/posts", isLoggedIn, async (req, res, next) => {
+router.post("/api/communities/:communityId/posts", isLoggedIn, async (req, res) => {
   try {
     const { communityId } = req.params;
     const userId = req.user.id; // Extract user ID from token
-    const { title, content, imgId, imageUrl } = req.body;
+    const { title, content, imgId } = req.body;
 
     if (!title || !content) {
       return res.status(400).json({ error: "Title and content are required" });
@@ -54,8 +59,8 @@ router.post("/:communityId/posts", isLoggedIn, async (req, res, next) => {
   }
 });
 
-// ✅ Update a community post (Requires Authentication)
-router.put("/:communityId/posts/:postId", isLoggedIn, async (req, res, next) => {
+// ✅ Update a community post
+router.put("/api/communities/:communityId/posts/:postId", isLoggedIn, async (req, res) => {
   try {
     const { postId } = req.params;
     const userId = req.user.id;
@@ -74,7 +79,7 @@ router.put("/:communityId/posts/:postId", isLoggedIn, async (req, res, next) => 
 });
 
 // ✅ Delete a community post
-router.delete("/:communityId/posts/:postId", isLoggedIn, async (req, res, next) => {
+router.delete("/api/communities/:communityId/posts/:postId", isLoggedIn, async (req, res) => {
   try {
     const { postId } = req.params;
     const userId = req.user.id;
