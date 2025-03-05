@@ -5,6 +5,7 @@ const cors = require("cors");
 const pool = require("./server/db");
 const { sendDirectMessage, fetchDirectMessages } = require("./server/db/message");
 const communityRoutes = require("./server/api/communityRoutes");
+const userRoutes = require("./server/api/userRoutes"); // ✅ Ensure user routes are included
 
 const app = express();
 const server = http.createServer(app);
@@ -25,6 +26,7 @@ app.use(express.json());
 
 // ✅ Register Routes
 app.use("/api/community", communityRoutes);
+app.use("/api/users", userRoutes); // ✅ Register user routes properly
 
 // ✅ Socket.io Real-Time Connection
 io.on("connection", (socket) => {
