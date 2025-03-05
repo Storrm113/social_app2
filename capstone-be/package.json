@@ -4,7 +4,7 @@
   "main": "app.js",
   "scripts": {
     "start:dev": "nodemon app.js",
-    "start": "node app.js",
+    "start": "node server.js",
     "seed:dev": "nodemon ./server/seed.js",
     "seed": "node ./server/seed.js",
     "test": "jest --runInBand"
