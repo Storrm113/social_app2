@@ -2,10 +2,10 @@ import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://social-app-wauj.onrender.com";
 
-// ✅ Register New User
+// ✅ REST API: Register New User
 export const registerUser = async (userData) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/api/users/register`, userData);
+    const response = await axios.post(`${API_BASE_URL}/api/users`, userData);
     return response.data;
   } catch (error) {
     console.error("Error registering user:", error.response?.data || error.message);
@@ -13,7 +13,7 @@ export const registerUser = async (userData) => {
   }
 };
 
-// ✅ Fetch All Users
+// ✅ REST API: Fetch All Users
 export const fetchUsers = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/api/users`);
@@ -24,10 +24,10 @@ export const fetchUsers = async () => {
   }
 };
 
-// ✅ Fetch Community Posts
+// ✅ REST API: Fetch Community Posts
 export const fetchCommunityPosts = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/api/communities/posts/all`);
+    const response = await axios.get(`${API_BASE_URL}/api/posts`);
     return response.data;
   } catch (error) {
     console.error("❌ Error fetching community posts:", error.response?.data || error.message);
@@ -35,7 +35,7 @@ export const fetchCommunityPosts = async () => {
   }
 };
 
-// ✅ Fetch Specific Community Posts
+// ✅ REST API: Fetch Specific Community Posts
 export const fetchPostsByCommunity = async (communityId) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/api/communities/${communityId}/posts`);
@@ -46,10 +46,10 @@ export const fetchPostsByCommunity = async (communityId) => {
   }
 };
 
-// ✅ Send Direct Message
+// ✅ REST API: Send Direct Message
 export const sendMessage = async (messageData) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/api/messages/direct`, messageData);
+    const response = await axios.post(`${API_BASE_URL}/api/messages`, messageData);
     return response.data;
   } catch (error) {
     console.error("Error sending message:", error.response?.data || error.message);
@@ -57,10 +57,10 @@ export const sendMessage = async (messageData) => {
   }
 };
 
-// ✅ Fetch Direct Messages
+// ✅ REST API: Fetch Direct Messages
 export const fetchDirectMessages = async (senderId, receiverId) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/api/messages/direct/${senderId}/${receiverId}`);
+    const response = await axios.get(`${API_BASE_URL}/api/messages/${senderId}/${receiverId}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching messages:", error.response?.data || error.message);
@@ -68,7 +68,7 @@ export const fetchDirectMessages = async (senderId, receiverId) => {
   }
 };
 
-// ✅ Upload Image
+// ✅ REST API: Upload Image
 export const uploadImage = async (imageData) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/api/images`, imageData);
@@ -79,7 +79,7 @@ export const uploadImage = async (imageData) => {
   }
 };
 
-// ✅ Fetch Image
+// ✅ REST API: Fetch Image
 export const fetchImage = async (filename) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/api/images/${filename}`);
@@ -90,7 +90,7 @@ export const fetchImage = async (filename) => {
   }
 };
 
-// ✅ Fetch All Communities
+// ✅ REST API: Fetch All Communities
 export const fetchCommunities = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/api/communities`);
@@ -101,7 +101,7 @@ export const fetchCommunities = async () => {
   }
 };
 
-// ✅ Fetch User's Communities
+// ✅ REST API: Fetch User's Communities
 export const fetchUserCommunities = async (username) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/api/communities/user/${username}`);
@@ -112,7 +112,7 @@ export const fetchUserCommunities = async (username) => {
   }
 };
 
-// ✅ Create Community Post
+// ✅ REST API: Create Community Post
 export const createCommunityPost = async (communityId, postData) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/api/communities/${communityId}/posts`, postData);
@@ -123,7 +123,7 @@ export const createCommunityPost = async (communityId, postData) => {
   }
 };
 
-// ✅ Delete Community Post
+// ✅ REST API: Delete Community Post
 export const deleteCommunityPost = async (communityId, postId) => {
   try {
     await axios.delete(`${API_BASE_URL}/api/communities/${communityId}/posts/${postId}`);
