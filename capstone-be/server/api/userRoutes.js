@@ -1,16 +1,22 @@
 const express = require("express");
 const router = express.Router();
+const { pool } = require("../db/index"); // ✅ Ensure the database pool is imported
 const { createUser, fetchUsers, updateUser, deleteUser, findUserByUsername, fetchUsernameByUserId } = require("../db/users");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 // ✅ Check if user already exists before registration
 const checkUserExists = async (username, email) => {
-  const result = await pool.query(
-    `SELECT * FROM users WHERE username = $1 OR email = $2`,
-    [username, email]
-  );
-  return result.rows.length > 0;
+  try {
+    const result = await pool.query(
+      `SELECT * FROM users WHERE username = $1 OR email = $2`,
+      [username, email]
+    );
+    return result.rows.length > 0;
+  } catch (error) {
+    console.error("❌ Error checking if user exists:", error);
+    throw error;
+  }
 };
 
 // ✅ Register New User
@@ -54,7 +60,7 @@ router.post("/register", async (req, res) => {
 
     res.status(201).json({ ...newUser, token });
   } catch (error) {
-    console.error("Error registering user:", error);
+    console.error("❌ Error registering user:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -65,7 +71,7 @@ router.get("/", async (req, res) => {
     const users = await fetchUsers();
     res.json(users);
   } catch (error) {
-    console.error("Error fetching users:", error);
+    console.error("❌ Error fetching users:", error);
     res.status(500).json({ error: "Failed to fetch users" });
   }
 });
@@ -77,7 +83,7 @@ router.get("/userinfo/:username", async (req, res) => {
     const user = await findUserByUsername(username);
     res.json(user);
   } catch (error) {
-    console.error("Error fetching user info:", error);
+    console.error("❌ Error fetching user info:", error);
     res.status(500).json({ error: "Failed to fetch user info" });
   }
 });
@@ -95,7 +101,7 @@ router.put("/:userId", async (req, res) => {
 
     res.status(200).json({ ...updatedUser, message: "User profile updated successfully" });
   } catch (error) {
-    console.error("Error updating user:", error);
+    console.error("❌ Error updating user:", error);
     res.status(500).json({ error: "Failed to update user" });
   }
 });
@@ -107,7 +113,7 @@ router.delete("/:userId", async (req, res) => {
     await deleteUser(userId);
     res.sendStatus(204);
   } catch (error) {
-    console.error("Error deleting user:", error);
+    console.error("❌ Error deleting user:", error);
     res.status(500).json({ error: "Failed to delete user" });
   }
 });
