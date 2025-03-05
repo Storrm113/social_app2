@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { registerUser } from "...capstone-be/sever/api/index"; // Import registerUser function
+import { registerUser } from "../../api/index"; // Import registerUser function
 
 function SignUp() {
   const navigate = useNavigate();
