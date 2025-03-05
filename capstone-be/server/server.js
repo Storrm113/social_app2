@@ -4,16 +4,23 @@ const { Server } = require("socket.io");
 const cors = require("cors");
 const pool = require("./db");
 const { sendDirectMessage, fetchDirectMessages } = require("./message");
-// **Import Routes**
 const communityRoutes = require("./api/communityRoutes");
 
 const app = express();
-const server = http.createServer(app); // Create HTTP server
+const server = http.createServer(app);
+
 const io = new Server(server, {
   cors: { origin: "*" }, // Allow all origins (update for security)
 });
 
-app.use(cors());
+// ✅ **Step 2: Fix CORS Configuration**
+const corsOptions = {
+  origin: "https://tigers-social-app.netlify.app", // Allow only frontend
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true, // Allow cookies/auth headers
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // **Register Routes**
@@ -23,7 +30,6 @@ app.use("/api/community", communityRoutes);
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
 
-  // Listen for a new direct message
   socket.on("sendMessage", async ({ senderId, receiverId, content }) => {
     try {
       const message = await sendDirectMessage({
@@ -32,7 +38,6 @@ io.on("connection", (socket) => {
         content,
       });
 
-      // Emit message to both sender and receiver
       io.to(receiverId).emit("receiveMessage", message);
       io.to(senderId).emit("receiveMessage", message);
     } catch (error) {
@@ -40,7 +45,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Disconnect event
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
   });
